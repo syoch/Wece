@@ -9,8 +9,8 @@ typedef struct{
 } Image;
 #define Image(fname) Image_new(fname);
 #define Image_dumpRaw(img, offset, dest, len) \
-    _fseeki64(img, offset, SEEK_SET);         \
-    fread(dest, 1, len, img)
+    _fseeki64(img->fp, offset, SEEK_SET);         \
+    fread(dest, 1, len, img->fp)
 
 #define Image_dump(img, offset, dest) Image_dumpRaw(img, offset, &dest, sizeof(dest))
 

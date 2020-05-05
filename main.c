@@ -12,7 +12,7 @@
 typedef struct{
     Elf32_Ehdr ehdr;
     Elf32_Phdr phdr;
-    FILE* fp;
+    Image* img;
     char* name;
 } rpx;
 
@@ -27,7 +27,7 @@ fpos_t pos_set = 0;
 //********************
 void LoadEhdr(rpx *File){
     Elf32_Ehdr Ehdr;
-    Image_dump(File->fp, pos_set, Ehdr);
+    Image_dump(File->img, pos_set, Ehdr);
     if (Ehdr.e_ident.e_encode == ELF_DATA2MSB)
     {
         swapmem(Ehdr.e_type);
@@ -70,7 +70,7 @@ void LoadEhdr(rpx *File){
             Ehdr.e_ident.e_magic[1] & 0x000000ff,
             Ehdr.e_ident.e_magic[2] & 0x000000ff,
             Ehdr.e_ident.e_magic[3] & 0x000000ff);
-        Image_delete(File->fp);
+        Image_delete(File->img);
         exit(1);
     }
 
@@ -81,7 +81,7 @@ void LoadEhdr(rpx *File){
         printf("LoadEhdr: FAILED CHECK CLASS\n");
         printf("LoadEhdr: Reason:Only Support 32bit elf or rpx\n");
         printf("LoadEhdr: Program name: %s\n", File->name);
-        Image_delete(File->fp);
+        Image_delete(File->img);
         exit(1);
     }
 
@@ -92,7 +92,7 @@ void LoadEhdr(rpx *File){
         printf("LoadEhdr: FAILED CHECK MACHINE\n");
         printf("LoadEhdr: Reason:Only Support ppc\n");
         printf("LoadEhdr: Program name: %s\n", File->name);
-        Image_delete(File->fp);
+        Image_delete(File->img);
         exit(1);
     }
     if (Ehdr.e_ident.e_encode == ELF_DATA2MSB && isBigendian == true)
@@ -122,11 +122,11 @@ void LoadShdr(rpx *File){
     Class(shstrtab, Shdr);
     Shdr *shdr;
     printf("LoadShdr: Loading Section headers to mem\n");
-    Shdr_Load(shstrtab, File->fp, File->ehdr.e_shoff + File->ehdr.e_shentsize * File->ehdr.e_shstrndx);
+    Shdr_Load(shstrtab, File->img, File->ehdr.e_shoff + File->ehdr.e_shentsize * File->ehdr.e_shstrndx);
     for (int i = 0; i < File->ehdr.e_shnum; i++)
     {
         shdr = Shdr_new();
-        Shdr_Load(shdr, File->fp, File->ehdr.e_shoff + sizeof(Elf32_Shdr) * i);
+        Shdr_Load(shdr, File->img, File->ehdr.e_shoff + sizeof(Elf32_Shdr) * i);
 
         printf("LoadShdr: Loading Section[%-20s] ", shstrtab->bytes + shdr->shdr.sh_name);
         if (shdr->shdr.sh_addr != 0)
@@ -164,7 +164,7 @@ int main(int argc, const char **argv)
     sprintf(Path + strlen(Path) - strlen(fname) - strlen(ext)-4, "Game\\code\\Minecraft.Client.rpx");
     printf("CoreMain: LOADING rpx [%s]\n", Path);
     Image* file=Image(Path);
-    program.fp=file->fp;
+    program.img=file;
     program.name=Path;
 
     //Read Headers

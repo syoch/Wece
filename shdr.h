@@ -66,7 +66,7 @@ void Shdr_Load(Shdr *this, Image* img, int64_t offset)
     }
     this->isloaded = 1;
     //get shdr
-    Image_dump(img->fp, offset, this->shdr);
+    Image_dump(img, offset, this->shdr);
     if (isBigendian == true)
     {
         swapmem(this->shdr.sh_name);
@@ -90,7 +90,7 @@ void Shdr_Load(Shdr *this, Image* img, int64_t offset)
         exit(-1);
     }
     memset(this->bytes, 0, this->rawsize);
-    Image_dumpRaw(img->fp, this->shdr.sh_offset, this->bytes, this->rawsize);
+    Image_dumpRaw(img, this->shdr.sh_offset, this->bytes, this->rawsize);
     //Shdr_print(this);
     if (this->shdr.sh_flags & SHF_COMPRESSED_ZLIB)
     {

@@ -1,7 +1,7 @@
 #ifndef S_ENDIAN_H
 #define S_ENDIAN_H
 
-extern bool isBigendian = false;
+bool isBigendian = false;
 
 void endian_Init()
 {

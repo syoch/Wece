@@ -34,7 +34,7 @@ void memSet8bit(uint64_t address, uint8_t value){
             }
         }
     }
-    
+    mem[a][b][c][d][e][f][g][h]=value;
 }
 uint8_t memGet8bit(uint64_t address){
     uint16_t a,b,c,d,e,f,g,h;
