@@ -1,5 +1,5 @@
-#if !defined(CPU_H)
-#define CPU_H
+#ifndef S_CPU_H
+#define S_CPU_H
 
 #include <tiny_stdlib.h>
 

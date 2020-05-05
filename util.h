@@ -1,5 +1,5 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef S_UTIL_H
+#define S_UTIL_H
 
 #include <zlib.h>
 #include <tiny_stdlib.h>

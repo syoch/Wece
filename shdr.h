@@ -1,11 +1,12 @@
-#ifndef SHDR_H
-#define SHDR_H
+#ifndef S_SHDR_H
+#define S_SHDR_H
 
 #include <tiny_stdlib.h>
 #include "elf.h"
 #include "class.h"
 #include "image.h"
 #include "endian.h"
+#include "util.h"
 
 typedef struct
 {

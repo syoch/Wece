@@ -1,5 +1,5 @@
-#ifndef CLASS_H
-#define CLASS_H
+#ifndef S_CLASS_H_
+#define S_CLASS_H_
 
 #define ClassNewHeader(class)\
     class *object;\

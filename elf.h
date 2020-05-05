@@ -1,5 +1,5 @@
-#ifndef ELF_H
-#define ELF_H
+#ifndef S_ELF_H
+#define S_ELF_H
 
 #include "tiny_stdlib.h"
 

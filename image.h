@@ -1,5 +1,5 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef S_IMAGE_H
+#define S_IMAGE_H
 
 #include <tiny_stdlib.h>
 #include "class.h"

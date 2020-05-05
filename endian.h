@@ -1,9 +1,9 @@
-#ifndef ENDIAN_H
-#define ENDIAN_H
+#ifndef S_ENDIAN_H
+#define S_ENDIAN_H
 
 extern bool isBigendian = false;
 
-void endian_init()
+void endian_Init()
 {
     int x = 1;
     if (*(char *)&x)

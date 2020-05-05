@@ -6,8 +6,7 @@
 #include "shdr.h"
 #include "memory.h"
 #include "endian.h"
-
-#define splitAddr(address) a = address >> 28 & 0x0000000f, b = address >> 24 & 0x0000000f, c = address >> 20 & 0x0000000f, d = address >> 16 & 0x0000000f, e = address >> 12 & 0x0000000f, f = address >> 8 & 0x0000000f, g = address >> 4 & 0x0000000f, h = address >> 0 & 0x0000000f;
+#include "cpu.h"
 
 
 typedef struct{
@@ -132,7 +131,7 @@ void LoadShdr(rpx *File){
         printf("LoadShdr: Loading Section[%-20s] ", shstrtab->bytes + shdr->shdr.sh_name);
         if (shdr->shdr.sh_addr != 0)
         {
-            memGoto(shdr->shdr.sh_addr);
+            //memGoto(shdr->shdr.sh_addr);
             //fwrite(shdr->bytes, 1, shdr->size, mem.fp);
         }
         putchar('\n');
@@ -162,21 +161,18 @@ int main(int argc, const char **argv)
     char Path[MAX_PATH + 1], drive[MAX_PATH + 1], dir[MAX_PATH + 1], fname[MAX_PATH + 1], ext[MAX_PATH + 1];
     GetModuleFileNameA(NULL, Path, MAX_PATH);
     _splitpath(Path, drive, dir, fname, ext);
-    sprintf(Path + strlen(Path) - strlen(fname) - strlen(ext), "Minecraft.Client.rpx");
+    sprintf(Path + strlen(Path) - strlen(fname) - strlen(ext)-4, "Game\\code\\Minecraft.Client.rpx");
     printf("CoreMain: LOADING rpx [%s]\n", Path);
     Image* file=Image(Path);
-    program.fp=file;
+    program.fp=file->fp;
     program.name=Path;
-
-    printf("CoreMain: Checking PC \n");
-    CheckPC_endian();
 
     //Read Headers
     LoadEhdr(&program);
     LoadPhdr(&program);
     LoadShdr(&program);
 
-    start(program.ehdr.e_entry);
+    start(0x02000000);
     //Clear
     Image_delete(file);
     mem_close();
