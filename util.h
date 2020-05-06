@@ -152,5 +152,23 @@ void _swapmem(char *mem, int len)
 }
 
 
+bool existFile(char *filename){
+    FILE *fp=fopen(filename,"r");
+    if(fp==NULL){
+        return false;
+    }
+    fclose(fp);
+    return true;
+}
+
+bool createFile(char *filename){
+    FILE *fp=fopen(filename,"w");
+    if(fp==NULL){
+        return 1;
+    }
+    fclose(fp);
+    return 0;
+}
+
 
 #endif

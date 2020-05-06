@@ -128,16 +128,13 @@ void LoadShdr(rpx *File){
         shdr = Shdr_new();
         Shdr_Load(shdr, File->img, File->ehdr.e_shoff + sizeof(Elf32_Shdr) * i);
 
-        printf("LoadShdr: Loading Section[%-20s] ", shstrtab->bytes + shdr->shdr.sh_name);
+        printf("LoadShdr: Loading Section[%-20s]\n", shstrtab->bytes + shdr->shdr.sh_name);
         if (shdr->shdr.sh_addr != 0)
         {
-            //memGoto(shdr->shdr.sh_addr);
-            //fwrite(shdr->bytes, 1, shdr->size, mem.fp);
             for(int i=0;i<shdr->size;i++){
                 memSet8bit(shdr->shdr.sh_addr+i,shdr->bytes[i]);
             }
         }
-        putchar('\n');
 
         Shdr_delete(shdr);
     }
@@ -155,11 +152,11 @@ void LoadShdr(rpx *File){
 int main(int argc, const char **argv)
 {
     rpx program;
-    memInit();
+    memInit(true);
     endian_Init();
 
-    //start(0x02000000);
-    //return 0;
+    start(0x02f38410);
+    return 0;
 
     char Path[MAX_PATH + 1], drive[MAX_PATH + 1], dir[MAX_PATH + 1], fname[MAX_PATH + 1], ext[MAX_PATH + 1];
     GetModuleFileNameA(NULL, Path, MAX_PATH);

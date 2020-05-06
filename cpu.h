@@ -4,6 +4,7 @@
 #include <tiny_stdlib.h>
 
 uint64_t link = 0;
+uint64_t counter=0;
 uint32_t codeOffset = 0;
 uint64_t r[32];
 uint32_t cr;
@@ -25,8 +26,13 @@ uint32_t cr;
     {                    \
         cr &= FLAG_EQ;   \
     }
-void ProcessorCondJump(uint8_t BO, uint8_t BI)
+bool BranchConditionalCheck(uint8_t BO, uint8_t BI)
 {
+    bool dat=(cr&(1<<BI))>>BI;
+    int result=1;
+    if((BO&0b10000)!=0b10000)result*=dat==(BO&0b01000)>>3?1 :0;
+    if((BO&0b00100)!=0b00100)result*=(--counter)==(BO&0b00010)>>1?1 :0;
+    return result==1;
 }
 uint32_t mnemonic_invalid(uint32_t instruct)
 {
@@ -144,8 +150,13 @@ uint32_t mnemonic_oris(uint32_t instruct)
 }
 uint32_t mnemonic_bcctr(uint32_t instruct)
 {
-
-    printf("Espresso: bcctr    %ld,%ld\n", 1l, 2l);
+    uint8_t
+         bo=instruct>>21&0x1f
+        ,bi=instruct>>16&0x1f;
+    if(BranchConditionalCheck(bo,bi)){
+        codeOffset=counter;
+    }
+    printf("Espresso: bcctr    %d,%d\n", bo, bi);
     return 0;
 }
 void start(uint32_t Entrypoint)

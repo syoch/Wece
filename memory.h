@@ -3,17 +3,24 @@
 
 #include <tiny_stdlib.h>
 #include <tiny_win.h>
+#include "util.h"
 
 FILE* mem_fp;
-uint16_t mem_currentFileNo; 
+uint8_t mem_currentFileNo; 
 fpos_t mem_pos;
-uint8_t mem_opened[0x100];
+uint8_t mem_opened[0x10];
+bool mem_readonly;
 
-void memInit(){
-    mem_currentFileNo=0;
+void memInit(int readonly){
+    mem_currentFileNo=0x0;
     mem_pos=0;
-    mem_fp=fopen("mem/02.bin","rb+");
+    mem_readonly=readonly;
+    if(existFile("mem/0.bin")==false){
+        createFile("mem/0.bin");
+    }
+    mem_fp=fopen("mem/0.bin","rb+");
     memset(mem_opened,false,sizeof(mem_opened));
+    mem_opened[0]=1;
 }
 void mem_close(){
     fclose(mem_fp);
@@ -21,18 +28,20 @@ void mem_close(){
     mem_pos=0;
 }
 void memcheck(uint64_t address){
-    int16_t address_Hig=address>>0x18;
-
-    if(mem_currentFileNo!=address_Hig||mem_fp==NULL){
+    int8_t address_Hig=address>>0x1c&0x0f;
+    if(mem_currentFileNo!=address_Hig){
         char Path[MAX_PATH]={0};
-        char mode[4]="ab+\0";
-        sprintf(Path,"mem/%02x.bin",(uint8_t)(address_Hig));
-        if(mem_opened[address_Hig]==0){
+        sprintf(Path,"mem/%x.bin",(uint8_t)(address_Hig));
+        if(mem_readonly==false&&mem_opened[address_Hig]==0){
             remove(Path);
         }
-        mem_fp=freopen(Path,mode,mem_fp);
+        if(existFile(Path)==false){
+            createFile(Path);
+        }
+        mem_fp=freopen(Path,"r+b",mem_fp);
+        printf("Mem Set : Switch memory block file > %s\n",Path);
         if(mem_fp==NULL){
-            printf("Mem Set: Error   : Failed to open memory chunkfile [%s]: %s\n",Path,strerror(errno));
+            printf("Mem chck: Error   : Failed to open memory chunkfile [%s]: %s\n",Path,strerror(errno));
             exit(-3);
         }
         mem_opened[address_Hig]=1;
@@ -41,7 +50,7 @@ void memcheck(uint64_t address){
     }
 }
 void memSet8bit(uint32_t address, char value){
-    uint64_t addr_low=address&0x00ffffff;
+    uint64_t addr_low=address&0x0fffffff;
     memcheck(address);
     if(mem_pos!=addr_low){
         fseek(mem_fp,addr_low,SEEK_SET);
@@ -51,7 +60,7 @@ void memSet8bit(uint32_t address, char value){
     mem_pos+=1;
 }
 uint8_t memGet8bit(uint32_t address){
-    uint64_t addr_low=address&0x00ffffff;
+    uint64_t addr_low=address&0x0fffffff;
     memcheck(address);
     if(mem_pos!=addr_low){
         fseek(mem_fp,addr_low,SEEK_SET);
