@@ -17,7 +17,7 @@ void mem_close(){
     mem_currentFileNo=0;
     mem_pos=0;
 }
-void memSet8bit(uint64_t address, char value){
+void memcheck(uint64_t address){
     int32_t address_Low=address&0x00ffffff;
     int16_t address_Hig=address>>0x18;
 
@@ -35,16 +35,26 @@ void memSet8bit(uint64_t address, char value){
         }
         mem_currentFileNo=address_Hig;
     }
-    if(mem_pos!=address_Low){
-        _fseeki64(mem_fp,address_Low,SEEK_SET);
-        mem_pos=address_Low;
+}
+void memSet8bit(uint64_t address, char value){
+    uint64_t addr_low=address&0x00ffffff;
+    memcheck(address);
+    if(mem_pos!=addr_low){
+        _fseeki64(mem_fp,addr_low,SEEK_SET);
+        mem_pos=addr_low;
     }
     fputc(value,mem_fp);
     mem_pos+=1;
 }
 uint8_t memGet8bit(uint64_t address){
-    printf("Mem Get : Error   : Not supported memget8bit\n");
-    exit(-2);
+    uint64_t addr_low=address&0x00ffffff;
+    memcheck(address);
+    if(mem_pos!=addr_low){
+        _fseeki64(mem_fp,addr_low,SEEK_SET);
+        mem_pos=addr_low;
+    }
+    mem_pos+=1;
+    return fgetc(mem_fp);
 }
 uint32_t memGet32bit(uint32_t address){
     return memGet8bit(address+0)<<0x18|
