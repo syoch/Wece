@@ -158,8 +158,8 @@ int main(int argc, const char **argv)
     memInit();
     endian_Init();
 
-    start(0x02000000);
-    return 0;
+    //start(0x02000000);
+    //return 0;
 
     char Path[MAX_PATH + 1], drive[MAX_PATH + 1], dir[MAX_PATH + 1], fname[MAX_PATH + 1], ext[MAX_PATH + 1];
     GetModuleFileNameA(NULL, Path, MAX_PATH);

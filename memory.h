@@ -7,50 +7,54 @@
 FILE* mem_fp;
 uint16_t mem_currentFileNo; 
 fpos_t mem_pos;
+uint8_t mem_opened[0x100];
+
 void memInit(){
-    mem_fp=NULL;
     mem_currentFileNo=0;
     mem_pos=0;
+    mem_fp=fopen("mem/02.bin","rb+");
+    memset(mem_opened,false,sizeof(mem_opened));
 }
 void mem_close(){
-    if(mem_fp!=NULL) fclose(mem_fp);
+    fclose(mem_fp);
     mem_currentFileNo=0;
     mem_pos=0;
 }
 void memcheck(uint64_t address){
-    int32_t address_Low=address&0x00ffffff;
     int16_t address_Hig=address>>0x18;
 
     if(mem_currentFileNo!=address_Hig||mem_fp==NULL){
         char Path[MAX_PATH]={0};
+        char mode[4]="ab+\0";
         sprintf(Path,"mem/%02x.bin",(uint8_t)(address_Hig));
-        if(mem_fp==NULL){
-            mem_fp=fopen(Path,"wb+");
-        }else{
-            mem_fp=freopen(Path,"wb+",mem_fp);
+        if(mem_opened[address_Hig]==0){
+            remove(Path);
         }
+        mem_fp=freopen(Path,mode,mem_fp);
         if(mem_fp==NULL){
-            printf("Mem Set: Error   : Failed to open memory chunkfile [%s]\n",Path);
+            printf("Mem Set: Error   : Failed to open memory chunkfile [%s]: %s\n",Path,strerror(errno));
             exit(-3);
         }
+        mem_opened[address_Hig]=1;
         mem_currentFileNo=address_Hig;
+        mem_pos=0;
     }
 }
-void memSet8bit(uint64_t address, char value){
+void memSet8bit(uint32_t address, char value){
     uint64_t addr_low=address&0x00ffffff;
     memcheck(address);
     if(mem_pos!=addr_low){
-        _fseeki64(mem_fp,addr_low,SEEK_SET);
+        fseek(mem_fp,addr_low,SEEK_SET);
         mem_pos=addr_low;
     }
     fputc(value,mem_fp);
     mem_pos+=1;
 }
-uint8_t memGet8bit(uint64_t address){
+uint8_t memGet8bit(uint32_t address){
     uint64_t addr_low=address&0x00ffffff;
     memcheck(address);
     if(mem_pos!=addr_low){
-        _fseeki64(mem_fp,addr_low,SEEK_SET);
+        fseek(mem_fp,addr_low,SEEK_SET);
         mem_pos=addr_low;
     }
     mem_pos+=1;
