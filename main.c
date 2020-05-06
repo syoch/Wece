@@ -133,6 +133,9 @@ void LoadShdr(rpx *File){
         {
             //memGoto(shdr->shdr.sh_addr);
             //fwrite(shdr->bytes, 1, shdr->size, mem.fp);
+            for(int i=0;i<shdr->size;i++){
+                memSet8bit(shdr->shdr.sh_addr+i,shdr->bytes[i]);
+            }
         }
         putchar('\n');
 

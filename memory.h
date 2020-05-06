@@ -2,54 +2,49 @@
 #define S_MEMORY_H
 
 #include <tiny_stdlib.h>
+#include <tiny_win.h>
 
-#define splitAddr(address) \
-    a = address >> 28 & 0x0000000f,\
-    b = address >> 24 & 0x0000000f,\
-    c = address >> 20 & 0x0000000f,\
-    d = address >> 16 & 0x0000000f,\
-    e = address >> 12 & 0x0000000f,\
-    f = address >> 8 & 0x0000000f,\
-    g = address >> 4 & 0x0000000f,\
-    h = address >> 0 & 0x0000000f
-
-char ********mem;
-
+FILE* mem_fp;
+uint16_t mem_currentFileNo; 
+fpos_t mem_pos;
 void memInit(){
-    mem=malloc(sizeof(*mem)*16);
+    mem_fp=NULL;
+    mem_currentFileNo=0;
+    mem_pos=0;
 }
 void mem_close(){
-    free(mem);
+    if(mem_fp!=NULL) fclose(mem_fp);
+    mem_currentFileNo=0;
+    mem_pos=0;
 }
-void memSet8bit(uint64_t address, uint8_t value){
-    uint16_t a,b,c,d,e,f,g,h;
-    splitAddr(address);
-    char **p=(char**)mem;
-    for(int i=0;i<8;i++){
-        p=(char**)p[address&0xff];
-        if(p==NULL){
-            p[address&0xff]=malloc((i==7 ? sizeof(char) : sizeof(char*))*16);
-            if(p[address&0xff]==NULL){
-                printf("Mem Set : Error   :Failed malloc memory parts. dep:%d\b",i);
-            }
+void memSet8bit(uint64_t address, char value){
+    int32_t address_Low=address&0x00ffffff;
+    int16_t address_Hig=address>>0x18;
+
+    if(mem_currentFileNo!=address_Hig||mem_fp==NULL){
+        char Path[MAX_PATH]={0};
+        sprintf(Path,"mem/%02x.bin",(uint8_t)(address_Hig));
+        if(mem_fp==NULL){
+            mem_fp=fopen(Path,"wb+");
+        }else{
+            mem_fp=freopen(Path,"wb+",mem_fp);
         }
+        if(mem_fp==NULL){
+            printf("Mem Set: Error   : Failed to open memory chunkfile [%s]\n",Path);
+            exit(-3);
+        }
+        mem_currentFileNo=address_Hig;
     }
-    mem[a][b][c][d][e][f][g][h]=value;
+    if(mem_pos!=address_Low){
+        _fseeki64(mem_fp,address_Low,SEEK_SET);
+        mem_pos=address_Low;
+    }
+    fputc(value,mem_fp);
+    mem_pos+=1;
 }
 uint8_t memGet8bit(uint64_t address){
-    uint16_t a,b,c,d,e,f,g,h;
-    splitAddr(address);
-    char **p=(char**)mem;
-    for(int i=0;i<8;i++){
-        p=(char**)p[address&0xff];
-        if(p==NULL){
-            p[address&0xff]=malloc((i==7 ? sizeof(char) : sizeof(char*))*16);
-            if(p[address&0xff]==NULL){
-                printf("Mem Get : Error   :Failed malloc memory parts. dep:%d\b",i);
-            }
-        }
-    }
-    return mem[a][b][c][d][e][f][g][h];
+    printf("Mem Get : Error   : Not supported memget8bit\n");
+    exit(-2);
 }
 uint32_t memGet32bit(uint32_t address){
     return memGet8bit(address+0)<<0x18|
