@@ -12,13 +12,15 @@ uint8_t mem_opened[0x10];
 bool mem_readonly;
 
 void memInit(int readonly){
-    mem_currentFileNo=0x0;
-    mem_pos=0;
-    mem_readonly=readonly;
+    _mkdir("mem/");
     if(existFile("mem/0.bin")==false){
         createFile("mem/0.bin");
     }
     mem_fp=fopen("mem/0.bin","rb+");
+
+    mem_currentFileNo=0x0;
+    mem_pos=0;
+    mem_readonly=readonly;
     memset(mem_opened,false,sizeof(mem_opened));
     mem_opened[0]=1;
 }

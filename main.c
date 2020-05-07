@@ -142,10 +142,6 @@ void LoadShdr(rpx *File){
 //********************
 //Entry
 //********************
-#include <tiny_win.h>
-#ifndef MAX_PATH
-#define MAX_PATH 260
-#endif
 int main(int argc, const char **argv)
 {
     rpx program;
@@ -154,11 +150,11 @@ int main(int argc, const char **argv)
 
     //start(0x02f38410);
     //return 0;
-
-    char Path[MAX_PATH + 1], drive[MAX_PATH + 1], dir[MAX_PATH + 1], fname[MAX_PATH + 1], ext[MAX_PATH + 1];
-    GetModuleFileNameA(NULL, Path, MAX_PATH);
-    _splitpath(Path, drive, dir, fname, ext);
-    sprintf(Path + strlen(Path) - strlen(fname) - strlen(ext)-4, "Game\\code\\Minecraft.Client.rpx");
+    if(argc<2){
+        printf("Usage: Wece <rpx/elf path :Path>\n");
+        exit(0);
+    }
+    char *Path = (char*) argv[1];
     printf("CoreMain: LOADING rpx [%s]\n", Path);
     Image* file=Image(Path);
     program.img=file;
