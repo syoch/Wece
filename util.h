@@ -4,7 +4,7 @@
 #include <zlib.h>
 #include <tiny_stdlib.h>
 
-#define INFLATE_CHUNK 0x10000
+#define INFLATE_CHUNK 0x80000
 
 void inflate_bytes(unsigned char *in, uint32_t inlen, int *outlen, unsigned char **out)
 {

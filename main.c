@@ -9,7 +9,7 @@
 #include "cpu.h"
 
 
-typedef struct{
+typedef struct Rpx_{
     Elf32_Ehdr ehdr;
     Elf32_Phdr phdr;
     Image* img;
@@ -121,23 +121,35 @@ void LoadShdr(rpx *File){
 
     Class(shstrtab, Shdr);
     Shdr *shdr;
+    fpos_t offset;
     printf("LoadShdr: Loading Section headers to mem\n");
     Shdr_Load(shstrtab, File->img, File->ehdr.e_shoff + File->ehdr.e_shentsize * File->ehdr.e_shstrndx);
     for (int i = 0; i < File->ehdr.e_shnum; i++)
     {
+        offset=File->ehdr.e_shoff + sizeof(Elf32_Shdr) * i;
         shdr = Shdr_new();
-        Shdr_Load(shdr, File->img, File->ehdr.e_shoff + sizeof(Elf32_Shdr) * i);
 
-        printf("LoadShdr: Loading Section[%-20s]\n", shstrtab->bytes + shdr->shdr.sh_name);
+        Shdr_LoadMeta(shdr, File->img, offset);
+        printf("LoadShdr: Loading Section[%20s]        ", shstrtab->bytes + shdr->shdr.sh_name);
+        printf("\b\b\b\b\b\b\b\bInflate ");
+        Shdr_LoadData(shdr, File->img, offset);
+
         if (shdr->shdr.sh_addr != 0)
         {
+            printf("\b\b\b\b\b\b\b\bMem");
+            int a=shdr->size/1000;
+            float b=1.0/shdr->size;
+            if(a==0)a=1;
             for(int i=0;i<shdr->size;i++){
+                if(i%a==0)printf("%5.1f%%\b\b\b\b\b\b",100.0*i*b);
                 memSet8bit(shdr->shdr.sh_addr+i,shdr->bytes[i]);
             }
+            printf("100.0%%");
         }
-
+        putchar('\r');
         Shdr_delete(shdr);
     }
+    putchar('\n');
 }
 
 
@@ -155,8 +167,8 @@ int main(int argc, const char **argv)
     memInit(true);
     endian_Init();
 
-    start(0x02f38410);
-    return 0;
+    //start(0x02f38410);
+    //return 0;
 
     char Path[MAX_PATH + 1], drive[MAX_PATH + 1], dir[MAX_PATH + 1], fname[MAX_PATH + 1], ext[MAX_PATH + 1];
     GetModuleFileNameA(NULL, Path, MAX_PATH);
@@ -170,7 +182,7 @@ int main(int argc, const char **argv)
     LoadEhdr(&program);
     LoadPhdr(&program);
     LoadShdr(&program);
-    start(0x02000000);
+    //start(0x02000000);
 
     //Clear
     Image_delete(file);

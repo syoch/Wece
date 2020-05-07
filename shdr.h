@@ -8,7 +8,7 @@
 #include "endian.h"
 #include "util.h"
 
-typedef struct
+typedef struct shdr_
 {
     Elf32_Shdr shdr;
     char *bytes;
@@ -57,15 +57,8 @@ void Shdr_print(Shdr *this)
     printf("\n");
 }
 
-void Shdr_Load(Shdr *this, Image* img, int64_t offset)
+void Shdr_LoadMeta(Shdr *this, Image* img, int64_t offset)
 {
-    if (this->isloaded == 1)
-    {
-        printf("ShdrLoad: warning :loaded\n");
-        return;
-    }
-    this->isloaded = 1;
-    //get shdr
     Image_dump(img, offset, this->shdr);
     if (isBigendian == true)
     {
@@ -80,13 +73,22 @@ void Shdr_Load(Shdr *this, Image* img, int64_t offset)
         swapmem(this->shdr.sh_addralign);
         swapmem(this->shdr.sh_entsize);
     }
+}
+void Shdr_LoadData(Shdr *this, Image* img, int64_t offset)
+{
+    if (this->isloaded == 1)
+    {
+        printf("ShdrData: warning :loaded\n");
+        return;
+    }
+    this->isloaded = 1;
     //read raw
     this->rawsize = this->shdr.sh_size;
     this->size = this->rawsize;
     this->bytes = malloc(sizeof(char) * this->rawsize);
     if (this->bytes == NULL)
     {
-        printf("ShdrLoad: Error   :Failed to malloc Shdr raw bytes\n");
+        printf("ShdrData: Error   :Failed to malloc Shdr raw bytes\n");
         exit(-1);
     }
     memset(this->bytes, 0, this->rawsize);
@@ -99,20 +101,24 @@ void Shdr_Load(Shdr *this, Image* img, int64_t offset)
         inflate_bytes((unsigned char *)(this->bytes + 4), this->rawsize, &this->inflatedsize, &inflated);
         if (inflated == NULL)
         {
-            printf("ShdrLoad: Error   :Failed to inflate\n");
+            printf("ShdrData: Error   :Failed to inflate\n");
             exit(-1);
         }
         free(this->bytes);
         this->bytes = malloc(this->inflatedsize);
         if (this->bytes == NULL)
         {
-            printf("ShdrLoad: Error   :Failed to Malloc inflated byte memory\n");
+            printf("ShdrData: Error   :Failed to Malloc inflated byte memory\n");
             exit(-1);
         }
         memcpy(this->bytes, inflated, this->inflatedsize);
         free(inflated);
         this->size = this->inflatedsize;
     }
+}
+void Shdr_Load(Shdr *this, Image* img, int64_t offset){
+    Shdr_LoadMeta(this,img,offset);
+    Shdr_LoadData(this,img,offset);
 }
 
 #endif

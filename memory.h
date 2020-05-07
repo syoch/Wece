@@ -39,7 +39,7 @@ void memcheck(uint64_t address){
             createFile(Path);
         }
         mem_fp=freopen(Path,"r+b",mem_fp);
-        printf("Mem Set : Switch memory block file > %s\n",Path);
+        //printf("Mem Set : Switch memory block file > %s\n",Path);
         if(mem_fp==NULL){
             printf("Mem chck: Error   : Failed to open memory chunkfile [%s]: %s\n",Path,strerror(errno));
             exit(-3);
@@ -49,21 +49,30 @@ void memcheck(uint64_t address){
         mem_pos=0;
     }
 }
+void memSeek(uint32_t pos){
+    int ret=fseek(mem_fp,pos,SEEK_SET);
+    if(ret!=0){
+        printf("Mem Seek: Error   : Failed to seek memory chunkfile : %s",strerror(errno));
+        exit(-3);
+    }
+}
 void memSet8bit(uint32_t address, char value){
     uint64_t addr_low=address&0x0fffffff;
     memcheck(address);
     if(mem_pos!=addr_low){
-        fseek(mem_fp,addr_low,SEEK_SET);
+        memSeek(addr_low);
         mem_pos=addr_low;
     }
     fputc(value,mem_fp);
     mem_pos+=1;
 }
 uint8_t memGet8bit(uint32_t address){
+    printf("Mem Get : Not Impremented\n");
+    exit(-2);
     uint64_t addr_low=address&0x0fffffff;
     memcheck(address);
     if(mem_pos!=addr_low){
-        fseek(mem_fp,addr_low,SEEK_SET);
+        memSeek(addr_low);
         mem_pos=addr_low;
     }
     mem_pos+=1;
