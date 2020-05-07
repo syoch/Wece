@@ -45,19 +45,6 @@ void LoadEhdr(rpx *File){
         swapmem(Ehdr.e_shstrndx);
     }
 
-    printf("LoadEhdr: Elf.Ehdr\n");
-    printf("LoadEhdr: | bit : %2dbit\n", Ehdr.e_ident.e_class == 1 ? 32 : 64);
-    printf("LoadEhdr: | Entry p:V%08lx h\n", Ehdr.e_entry);
-    printf("LoadEhdr: | Program Header\n");
-    printf("LoadEhdr: | |     offset :V%08lx h\n", Ehdr.e_phoff);
-    printf("LoadEhdr: | \\ Entry count:     %04x h\n", Ehdr.e_phnum);
-    printf("LoadEhdr: | Section Header\n");
-    printf("LoadEhdr: | |     offset :V%08lx h\n", Ehdr.e_shoff);
-    printf("LoadEhdr: | | Entry count:     %04x h\n", Ehdr.e_shnum);
-    printf("LoadEhdr: | | Entry size : %8x h\n", Ehdr.e_shentsize);
-    printf("LoadEhdr: \\ \\ str table  :     %04x h\n", Ehdr.e_shstrndx);
-
-    printf("LoadEhdr: Check ident\n");
     if (memcmp(Ehdr.e_ident.e_magic, ELFMAG, 4))
     {
         printf("\n\n");
@@ -74,7 +61,6 @@ void LoadEhdr(rpx *File){
         exit(1);
     }
 
-    printf("LoadEhdr: Check Class\n");
     if (Ehdr.e_ident.e_class != ELF_CLASS32)
     {
         printf("\n\n");
@@ -85,7 +71,6 @@ void LoadEhdr(rpx *File){
         exit(1);
     }
 
-    printf("LoadEhdr: Check Machine\n");
     if (Ehdr.e_machine != EM_PPC)
     {
         printf("\n\n");
@@ -130,7 +115,7 @@ void LoadShdr(rpx *File){
         shdr = Shdr_new();
 
         Shdr_LoadMeta(shdr, File->img, offset);
-        printf("LoadShdr: Loading Section[%20s]        ", shstrtab->bytes + shdr->shdr.sh_name);
+        printf("LoadShdr: Loading Section[%-20s]        ", shstrtab->bytes + shdr->shdr.sh_name);
         printf("\b\b\b\b\b\b\b\bInflate ");
         Shdr_LoadData(shdr, File->img, offset);
 
