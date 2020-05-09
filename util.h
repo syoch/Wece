@@ -2,8 +2,9 @@
 #define S_UTIL_H
 
 #include <zlib.h>
+#ifndef _TINY_STDLIB_
 #include <tiny_stdlib.h>
-
+#endif
 #define INFLATE_CHUNK 0x80000
 
 void inflate_bytes(unsigned char *in, uint32_t inlen, int *outlen, unsigned char **out)

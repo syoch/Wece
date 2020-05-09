@@ -1,7 +1,9 @@
 #ifndef S_IMAGE_H
 #define S_IMAGE_H
 
+#ifndef _TINY_STDLIB_
 #include <tiny_stdlib.h>
+#endif
 #include "class.h"
 
 typedef struct{

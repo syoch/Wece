@@ -1,7 +1,9 @@
 #ifndef S_CPU_H
 #define S_CPU_H
 
+#ifndef _TINY_STDLIB_
 #include <tiny_stdlib.h>
+#endif
 
 uint64_t link = 0;
 uint64_t counter=0;

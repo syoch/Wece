@@ -1,4 +1,6 @@
+#ifndef _TINY_STDLIB_
 #include <tiny_stdlib.h>
+#endif
 #include <zlib.h>
 #include "elf.h"
 #include "class.h"
@@ -115,23 +117,37 @@ void LoadShdr(rpx *File){
         shdr = Shdr_new();
 
         Shdr_LoadMeta(shdr, File->img, offset);
-        printf("LoadShdr: Loading Section[%-20s]        ", shstrtab->bytes + shdr->shdr.sh_name);
-        printf("\b\b\b\b\b\b\b\bInflate ");
+        printf("LoadShdr: [%-20s](xxxxxxxx xxxxxxxx)", shstrtab->bytes + shdr->shdr.sh_name);
+        printf("Loading Meta");
         Shdr_LoadData(shdr, File->img, offset);
-
+        printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b%08lx %08x)Done        \b\b\b\b\b\b\b\b\b\b\b\b",shdr->shdr.sh_addr,shdr->size);
         if (shdr->shdr.sh_addr != 0)
         {
-            printf("\b\b\b\b\b\b\b\bMem");
-            int a=shdr->size/1000;
-            float b=1.0/shdr->size;
-            if(a==0)a=1;
-            for(int i=0;i<shdr->size;i++){
-                if(i%a==0)printf("%5.1f%%\b\b\b\b\b\b",100.0*i*b);
-                memSet8bit(shdr->shdr.sh_addr+i,shdr->bytes[i]);
+            //Check can fwrite fast set
+            Elf32_Shdr Shdr=shdr->shdr;
+            if(Shdr.sh_addr>>0x1c == (Shdr.sh_addr+shdr->size)>>0x1c){
+                printf("Set One ");
+                memcheck(Shdr.sh_addr);
+                memSeek(Shdr.sh_addr&0x0fffffff);
+                //int n=fwrite(shdr->bytes,1,shdr->size,mem_fp);
+                for(int i=0;i<shdr->size;i++){
+                    fputc(shdr->bytes[i],mem_fp);
+                }
+                fflush(mem_fp);
+                printf("\b\b\b\b\b\b\b\bDone      ");
+            }else{
+                printf("Set Raw ");
+                int a=shdr->size/1000;
+                float b=1.0/shdr->size;
+                if(a==0)a=1;
+                for(int i=0;i<shdr->size;i++){
+                    if(i%a==0)printf("%5.1f%%\b\b\b\b\b\b",100.0*i*b);
+                    memSet8bit(shdr->shdr.sh_addr+i,shdr->bytes[i]);
+                }
+                printf("      \b\b\b\b\b\b\b\b\b\b\b\b\b\bDone   ");
             }
-            printf("100.0%%");
         }
-        putchar('\r');
+        putchar('\n');
         Shdr_delete(shdr);
     }
     putchar('\n');

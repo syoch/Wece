@@ -1,8 +1,9 @@
 #ifndef S_MEMORY_H
 #define S_MEMORY_H
 
+#ifndef _TINY_STDLIB_
 #include <tiny_stdlib.h>
-#include <tiny_win.h>
+#endif
 #include "util.h"
 
 FILE* mem_fp;
@@ -31,8 +32,8 @@ void mem_close(){
 }
 void memcheck(uint64_t address){
     int8_t address_Hig=address>>0x1c&0x0f;
-    if(mem_currentFileNo!=address_Hig){
-        char Path[MAX_PATH]={0};
+    if(mem_currentFileNo!=address_Hig && 0==1){
+        char Path[32]={0};
         sprintf(Path,"mem/%x.bin",(uint8_t)(address_Hig));
         if(mem_readonly==false&&mem_opened[address_Hig]==0){
             remove(Path);

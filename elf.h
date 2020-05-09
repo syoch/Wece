@@ -1,8 +1,9 @@
 #ifndef S_ELF_H
 #define S_ELF_H
 
-#include "tiny_stdlib.h"
-
+#ifndef _TINY_STDLIB_
+#include <tiny_stdlib.h>
+#endif
 
 
 //********************

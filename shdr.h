@@ -1,7 +1,9 @@
 #ifndef S_SHDR_H
 #define S_SHDR_H
 
+#ifndef _TINY_STDLIB_
 #include <tiny_stdlib.h>
+#endif
 #include "elf.h"
 #include "class.h"
 #include "image.h"
