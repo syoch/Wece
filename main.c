@@ -161,11 +161,12 @@ void LoadShdr(rpx *File){
 int main(int argc, const char **argv)
 {
     rpx program;
-    memInit(true);
+    memInit(false);
     endian_Init();
 
     //start(0x02f38410);
     //return 0;
+    
     if(argc<2){
         printf("Usage: Wece <rpx/elf path :Path>\n");
         exit(0);

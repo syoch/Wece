@@ -1,0 +1,36 @@
+Wiiu Emulator preContained gEcko
+
+```
+This project is Wiiu Emulator on any platform, Preinstalled gecko
+Wrote by C launguage
+```
+
+# Depends
+| Library name | Download |
+|--------------|----------|
+|Tiny header   |git syoch/TinyHeaders[(DL)](https://github.com/syoch/TinyHeaders)|
+
+# Compile
+`run in Wece project directry.`
+
+---
+## use gcc
+```
+gcc -static-libgcc -static-libstdc++ -I <Path to Tiny headers> <Path to zlib> main.c
+```
+## use tcc(x86)
+```
+tcc -I <Path to Tiny headers> <Path to zlib x86> main.c
+```
+
+# Run 
+```
+Wece <any rpx file>
+```
+
+# Exe Directry
+|name| Description |
+|:------:|:-----------:|
+|Wece.exe|Emulator     |
+|mem/    |Memorydir    |
+|mem/\<any char\>.bin| Memory chunk file|
